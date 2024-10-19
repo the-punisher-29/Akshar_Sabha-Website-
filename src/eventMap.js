@@ -1,0 +1,16 @@
+export const eventMap={
+    "Script to Video (Video Making Workshop)" : "video_making_workshop",
+    "Spill the Ink (Creative Writing Workshop)" : "creative_writing_workshop",
+    "Nautanki Saala (Acting Workshop)" : "acting_workshop",
+    "Verse Come Verse Serve (Prompt Poetry)" : "prompt_poetry",
+    "Noob Quiz" : "noob_quiz",
+    "Are Your Words-Worth?(Word Games)" : "word_games",
+    "Clueminati (Treasure Hunt)" : "treasure_hunt",
+    "Just A Minute Speech" : "just_a_minute_speech",
+    "Hindi Debate/Hindi Extempore" : "hindi_debate",
+    "In Pursuit Of Dispute (English Debate)" : "english_debate",
+    "What If They Met (Prompt based character re-enactment)" : "character_reenactment",
+    "Mythology quiz" : "mythology_quiz",
+    "Let's Get Quizzical (MELA Quiz)" : "mela_quiz",
+    "Open Mic" : "open_mic",
+}

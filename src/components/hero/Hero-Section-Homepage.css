@@ -1,0 +1,138 @@
+.heroLogo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.heroTitle {
+    overflow: hidden;
+}
+
+.heroTitleImg {
+    transform: translate(0, 0);
+    animation: sunrise 3s ease-out;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: fit-content;
+    animation: rotateLogo 3s ease-in-out;
+    transform-origin: 50% 50%;
+}
+
+.part {
+    position: relative;
+    /* width: 580px; */
+    width: fit-content;
+    overflow: hidden;
+}
+
+.row1,
+.row2 {
+    display: flex;
+    flex-direction: row;
+    margin: none;
+    padding: none;
+}
+
+.test {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.logo {
+    /* width: 100%; */
+    width: 15vw;
+    max-width: 80vh;
+}
+
+.logo1 {
+    transform: translate(0px, 0px);
+    animation: rise1 3s ease-in-out;
+}
+
+.logo2 {
+    /* transform: rotate(270deg); */
+    /* transform: scaleX(-1); */
+    animation: rise2 3s ease-in-out;
+}
+
+.logo3 {
+    /* transform: rotate(180deg); */
+    animation: rise3 3s ease-in-out;
+}
+
+.logo4 {
+    /* transform: rotate(90deg) */
+    /* transform: scaleY(-1); */
+    animation: rise4 3s ease-in-out;
+}
+
+@keyframes sunrise {
+    0% {
+        transform: translate(0, 20vh);
+    }
+    100% {
+        transform: translate(0, 0);
+    }
+}
+
+@keyframes rotateLogo {
+    0% {
+        transform: rotate(360deg);
+    }
+
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+@keyframes rise1 {
+    0% {
+        transform: translate(calc(-1*min(15vw, 80vh)), min(15vw, 80vh));
+        /* transform: translate(-290px, 290px); */
+        /* transform: rotate(90deg); */
+    }
+
+    100% {
+        transform: translate(0px, 0px);
+        /* transform: rotate(0deg); */
+    }
+}
+
+@keyframes rise2 {
+    0% {
+        transform: translate(min(15vw, 80vh), min(15vw, 80vh));
+        /* transform: translate(290px, 290px); */
+    }
+
+    100% {
+        transform: translate(0px, 0px);
+    }
+}
+
+@keyframes rise3 {
+    0% {
+        transform: translate(min(15vw, 80vh), calc(-1*min(15vw, 80vh)));
+        /* transform: translate(290px, -290px); */
+    }
+
+    100% {
+        transform: translate(0px, 0px);
+    }
+}
+
+@keyframes rise4 {
+    0% {
+        transform: translate(calc(-1*min(15vw, 80vh)), calc(-1*min(15vw, 80vh)));
+        /* transform: translate(-284px, -285px); */
+    }
+
+    100% {
+        transform: translate(0px, 0px);
+    }
+}

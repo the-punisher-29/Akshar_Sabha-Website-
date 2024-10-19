@@ -1,0 +1,10 @@
+.disabledEventRegisterBtn {
+    background-color:black !important;
+    color: white;
+}
+
+.disabledEventRegisterBtn:hover {
+    cursor: default;
+    background-color: white !important;
+    color: teal !important;
+}

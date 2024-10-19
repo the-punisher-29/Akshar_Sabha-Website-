@@ -1,0 +1,40 @@
+.interestDropDown {
+    display: flex;
+    flex-direction: column;
+}
+
+#userInterestLabel {
+    /* mt-8 text-sm text-gray-600 text-center */
+    margin-top: calc(8*4px);
+    font-size: 1rem; /* 16px */
+    line-height: 1.5rem; /* 24px */
+    color: #718096;
+}
+
+#userInterestOptions {
+    /* w-full px-8 py-4 rounded-lg font-medium bg-gray-100 
+    border border-gray-200 placeholder-gray-500 text-sm 
+    focus:outline-none focus:border-gray-400 focus:bg-white mt-5 first:mt-0 */
+
+    width: 100%;
+    padding: calc(4*4px) calc(8*4px);
+    border-radius: 0.5rem;
+    font-weight: 500;
+    color: #718096;
+    background-color: rgb(243 244 246);
+    border-width: 1px;
+    border-color: rgb(229 231 235);
+    font-size: 0.875rem; /* 14px */
+    line-height: 1.25rem; /* 20px */
+    margin-top: calc(4*5px);
+}
+
+#userInterestOptions::placeholder {
+    color: rgb(107 114 128);
+}
+
+#userInterestOptions:focus {
+    outline: none;
+    border-color: rgb(156 163 175);
+    background-color: white;
+}

@@ -146,6 +146,8 @@ export const PreRegisterButton = styled(NavLink)`
   `}
 `;
 
+const HighlightedText = tw.span`bg-gradient-to-r from-green-300 via-yellow-300 to-blue-200 px-4 text-teal-700  transform -skew-x-12 inline-block font-Philosopher`;
+
 export default ({
   roundedHeaderButton = false,
   logoLink,
@@ -173,7 +175,7 @@ export default ({
   const defaultLinks = [
     <NavLinks key={1}>
       <Link to="/about">
-        <NavLink color={color} style = {{  fontFamily: 'Lato',fontSize:'16px'}}>About Akshar</NavLink>
+        <NavLink color={color} style = {{  fontFamily: 'Lato',fontSize:'16px'}}><b><HighlightedText>About Akshar</HighlightedText></b></NavLink>
       </Link>
       <Link to="/events">
         <NavLink color={color} style = {{ fontFamily: 'Lato',fontSize:'16px'}}>Events</NavLink>

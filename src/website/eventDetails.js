@@ -1182,7 +1182,7 @@ return (
         
         <FormControl isRequired>
             <FormLabel>Pincode</FormLabel>
-            <Input name="pincode" value={collegeDetails.pincode} onChange={handleCollegeChange}  bg="white"/>
+            <Input name="pincode" value={collegeDetails.pincode} onChange={handleCollegeChange}  bg="white" pattern="^\d{6}$" maxLength={6}/>
         </FormControl>
     </VStack>
     {/* Previous and Next Buttons in Tab 2 */}

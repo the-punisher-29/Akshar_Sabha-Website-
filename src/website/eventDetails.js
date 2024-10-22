@@ -398,7 +398,7 @@ import { getAuth,signInWithPopup, signOut } from 'firebase/auth';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import {
     Box,
     VStack,
@@ -520,78 +520,6 @@ function Events() {
             }
         };
 
-    // // Validation for each tab
-    // const isValidTab = () => {
-    //     // Validation for Tab 1 (Leader Details)
-    //     if (activeTabIndex === 0) {
-    //         const { redId = '', firstName = '', lastName = '', phone = '' } = leaderDetails;
-            
-    //         console.log("Tab 1 Validation:", { redId, firstName, lastName, phone }); // Debugging line
-    
-    //         const isValid = (
-    //             redId.trim() !== '' &&
-    //             firstName.trim() !== '' &&
-    //             lastName.trim() !== '' &&
-    //             /^\d{10}$/.test(phone) // Phone must be 10 digits
-    //         );
-    
-    //         console.log("Tab 1 Is Valid:", isValid); // Debugging line
-    //         return isValid;
-    //     }
-    
-    //     // Validation for Tab 2 (College Details)
-    //     if (activeTabIndex === 1) {
-    //         const { collegeName = '', state = '', city = '', areaType = '', pincode = '' } = collegeDetails;
-    
-    //         console.log("Tab 2 Validation:", { collegeName, state, city, areaType, pincode }); // Debugging line
-    
-    //         return (
-    //             collegeName.trim() !== '' &&
-    //             state.trim() !== '' &&
-    //             city.trim() !== '' &&
-    //             areaType.trim() !== '' &&
-    //             /^\d{6}$/.test(pincode) // Pincode must be exactly 6 digits
-    //         );
-    //     }
-    
-    //     // Validation for Tab 3 (Team Members)
-    //     if (activeTabIndex === 2) {
-    //         if (numberOfTeamMembers < 1 || numberOfTeamMembers > 3) {
-    //             return false; // Must be between 1 and 3 team members
-    //         }
-            
-    //         for (let i = 0; i < numberOfTeamMembers; i++) {
-    //             const member = teamMembers[i] || {}; // Fallback to empty object if undefined
-    
-    //             console.log("Team Member Validation:", member); // Debugging line
-    
-    //             if (
-    //                 member.name.trim() === '' ||
-    //                 member.rollNo.trim() === '' ||
-    //                 !/\S+@\S+\.\S+/.test(member.email) // Basic email validation
-    //             ) {
-    //                 return false; 
-    //             }
-    //         }
-    //     }
-    
-    //     // Tab 4: No validation needed, just return true
-    //     return true;
-    // };
-    
-    
-
-    // const handleNextClick = () => {
-    //     if (isValidTab()) {
-    //         setActiveTabIndex((prevIndex) => prevIndex + 1);
-    //     } else {
-    //         alert('Please fill in all required fields!'); // Alert if validation fails
-    //     }
-    // };
-    
-    
-     
-
     const checkIfFormSubmitted = async (userId) => {
         try {
             const userDoc = doc(db, "users", userId);
@@ -609,29 +537,6 @@ function Events() {
             console.error("Error checking form submission:", error);
         }
     }; 
-    
-    
-    // const signInWithGoogle = async () => {
-    //     try {
-    //         const result = await signInWithPopup(auth, provider);
-    //         const loggedInUser = result.user;
-    //         setUser(loggedInUser);
-    //         localStorage.setItem('user', JSON.stringify(loggedInUser));  // Store login state in localStorage
-    //         await checkIfFormSubmitted(loggedInUser.uid);
-    //     } catch (error) {
-    //         console.error("Error during Google sign-in:", error);
-    //     }
-    // };
-
-    // const handleLogout = () => {
-    //     signOut(auth).then(() => {
-    //         setUser(null);
-    //         localStorage.removeItem('user');
-    //     }).catch((error) => {
-    //         console.error("Error during sign-out:", error);
-    //     });
-    // };
-
      // Handle user authentication state
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -804,7 +709,19 @@ const calculateParticipationFee = (teamMembersCount) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+    
+        // Validate fields (You can adjust validation rules as per your requirements)
+        if (!leaderDetails.firstName || !leaderDetails.lastName || !leaderDetails.phone || !collegeDetails.collegeName || !collegeDetails.state || !collegeDetails.city || !collegeDetails.areaType || !collegeDetails.pincode) {
+            alert("Please fill in all required fields.");
+            return;
+        }
+    
+        // Check if the leader's name contains only valid characters (letters and spaces)
+        if (!/^[A-Za-z\s]+$/.test(leaderDetails.firstName)) {
+            alert("Leader's name can only contain letters and spaces.");
+            return;
+        }
+    
         if (!user) {
             alert("Please sign in with Google to submit the form.");
             return;
@@ -812,28 +729,36 @@ const calculateParticipationFee = (teamMembersCount) => {
     
         try {
             const userId = user.uid;
+            
+            // Check if the user has already registered by querying Firestore
+            const existingUserDocRef = query(collection(db, 'events'), where("email", "==", user.email));
+            const existingUserDoc = await getDocs(existingUserDocRef);
     
-            // Get a unique MUN ID
+            if (!existingUserDoc.empty) {
+                const existingDoc = existingUserDoc.docs[0]; // Get the first matching document
+                const existingMunID = existingDoc.data().munID; // Retrieve the existing MUN ID
+                alert(`You have already registered! Your MUN ID is: ${existingMunID}`);
+                setMunID(existingMunID); // Set the MUN ID in state to display it later
+                setFormSubmitted(true); // Update form submission state
+                return; // Exit to prevent further processing
+            }
+    
+            // Get a unique MUN ID from Firestore
             const idDoc = doc(db, "id", "id");
             const idSnap = await getDoc(idDoc);
     
-            // Check if the document exists and contains the 'id' field
             if (!idSnap.exists()) {
                 console.error("The ID document does not exist!");
                 return;
             }
-            
+    
             const data = idSnap.data();
-            console.log("Retrieved document data:", data);  // Debugging line
-            
             if (!data || typeof data.id === 'undefined') {
                 console.error("The 'id' field is missing in the document or is undefined!");
                 return;
             }
-            
+    
             const atomicID = data.id;
-            console.log("Current atomic ID:", atomicID);  // Debugging line
-
             const todaysDate = new Date();
             const munID = `MUN-${todaysDate.getMonth() + 1}${todaysDate.getDate()}${atomicID + 1}`;
     
@@ -848,26 +773,26 @@ const calculateParticipationFee = (teamMembersCount) => {
     
             // Define the data structure to save in Firestore
             const formData = {
-                leaderDetails,           // From Tab 1
-                collegeDetails,          // From Tab 2
-                teamMembers,             // From Tab 3
+                leaderDetails,           // Leader details
+                collegeDetails,          // College details
+                teamMembers,             // Team members
                 email: user.email,       // User's email
                 uid: userId,             // Firebase UID of the user
                 munID,                   // Unique MUN ID
                 status: false,           // Form status (e.g., pending approval)
                 imageURL,                // Payment screenshot URL (if any)
-                interestedInAkshar       // From Tab 4
+                interestedInAkshar       // Interest in Akshar event (if applicable)
             };
     
             // Save the form data to Firestore under the 'events' collection
             await setDoc(doc(db, 'events', munID), formData);
     
-            // Update the atomic ID in the Firestore database
+            // Update the atomic ID in Firestore
             await setDoc(idDoc, {
                 id: atomicID + 1
             });
     
-            // Update the form submission state and MUN ID
+            // Update form submission state and display the generated MUN ID
             setFormSubmitted(true);
             setMunID(munID);
     
@@ -891,6 +816,7 @@ const calculateParticipationFee = (teamMembersCount) => {
             });
         }
     };
+    
 
 
 // const isFormValidForTab = (index) => {
@@ -1406,7 +1332,7 @@ return (
       </Box>
 
       {/* QR Code Image and Screenshot Upload */}
-      <HStack mt={6} spacing={6}>
+      <VStack mt={6} spacing={6}>
         {/* QR Code Image */}
         <Box>
   <Heading size="sm" color="blue.500">Scan to Pay</Heading>
@@ -1419,7 +1345,7 @@ return (
           <FormLabel>Upload Payment Screenshot</FormLabel>
           <Input type="file" onChange={handleScreenshotUpload} accept="image/*" bg="white" />
         </Box>
-      </HStack>
+      </VStack>
       {/* Previous Button only in Tab 4 */}
       <Button mt={4} colorScheme="blue" onClick={handlePreviousClick} mr={4}>
                         Previous

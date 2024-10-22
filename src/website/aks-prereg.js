@@ -260,7 +260,36 @@ import { signInWithPopup, signOut } from 'firebase/auth';
 import { onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { Box, Text, Button, Image, Input, FormControl, FormLabel } from "@chakra-ui/react"; // Import Chakra UI components
+import {
+    Box,
+    VStack,
+    FormControl,
+    FormLabel,
+    Input,
+    useToast,
+    IconButton,
+    Divider,
+    Button,
+    Heading,
+    Image,
+    Text,
+    Icon,
+    HStack,
+    Tabs,
+    TabList,
+    TabPanels,
+    TabPanel,
+    Tab,
+    Select,
+    Radio,
+    RadioGroup,
+    Table,
+    Tbody,
+    Tr,
+    Td,
+    FormHelperText
+
+} from '@chakra-ui/react'; // Import Chakra UI components
 import tw from 'twin.macro';
 const HighlightedText = tw.span`bg-gradient-to-r from-green-300 via-yellow-300 to-blue-200 px-4 text-teal-700 transform -skew-x-12 inline-block font-Philosopher`;
 
@@ -271,6 +300,7 @@ const PreRegistrationPage = () => {
     const [name, setName] = useState('');
     const [phoneNo, setPhoneNo] = useState('');
     const [email, setEmail] = useState('');
+    const [accommodationNeeded, setAccommodationNeeded] = useState("no");
     const [college, setCollege] = useState('');
     const [address, setAddress] = useState('');
     const [interest, setInterest] = useState('');
@@ -477,6 +507,17 @@ const PreRegistrationPage = () => {
                                             width="400px" // Set width here
                                         />
                                     </FormControl>
+                                    <FormControl mt={4}>
+        <FormLabel>Do you want accommodation?</FormLabel>
+        <HStack spacing={4}>
+        <RadioGroup onChange={setAccommodationNeeded} value={accommodationNeeded} bg="white">
+          <HStack>
+            <Radio value="yes">Yes</Radio>
+            <Radio value="no">No</Radio>
+          </HStack>
+        </RadioGroup>
+        </HStack>
+      </FormControl>
 
                                     <Button mt={4} colorScheme="teal" type="submit">Submit</Button>
                                 </form>

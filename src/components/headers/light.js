@@ -175,7 +175,18 @@ export default ({
   const defaultLinks = [
     <NavLinks key={1}>
       <Link to="/about">
-        <NavLink color={color} style = {{  fontFamily: 'Lato',fontSize:'16px'}}><b><HighlightedText>About Akshar</HighlightedText></b></NavLink>
+      <NavLink 
+  color={color} 
+  style={{
+    fontFamily: 'Lato',
+    fontSize: '16px',
+    border: '3px solid orange',  // Adding the orange border
+    padding: '4px'  // Optional: add some padding to make the border look better
+  }}
+>
+  <b><HighlightedText>About Akshar</HighlightedText></b>
+</NavLink>
+
       </Link>
       <Link to="/events">
         <NavLink color={color} style = {{ fontFamily: 'Lato',fontSize:'16px'}}>Events</NavLink>

@@ -1,51 +1,3 @@
-// function goBackToEvents(history) {
-//     history.push("/events")
-//     history.go(0)
-// }
-
-// function Events() {
-//     const location = useLocation();
-//     const card = location.state;
-//     const history = useHistory();
-//     const toast = useToast();
-
-//     if (!card) goBackToEvents(history, card);
-
-//     const [user, setUser] = useState(null);
-//     const [formSubmitted, setFormSubmitted] = useState(false);
-//     const [munID, setMunID] = useState('');
-//     const [status, setStatus] = useState('');
-//     const [page, setPage] = useState(1);
-    
-//     const [leaderDetails, setLeaderDetails] = useState({
-//         name: '',
-//         email: '',
-//         phone: '',
-//         college: ''
-//     });
-
-//     const [teamMembers, setTeamMembers] = useState([]);
-//     const [file, setFile] = useState(null);
-//     const [qrCodeURL, setQrCodeURL] = useState(null);
-//     const [price, setPrice] = useState(null);
-
-//     const signInWithGoogle = async () => {
-//         try {
-//         const result = await signInWithPopup(auth, provider);
-//         setUser(result.user);
-//         await checkIfFormSubmitted(result.user.uid); // Check if the user has already submitted the form
-//         } catch (error) {
-//         console.error("Error during Google sign-in:", error);
-//         }
-//     };
-
-//     const handleLeaderChange = (e) => {
-//         const { name, value } = e.target;
-//         setLeaderDetails((prevDetails) => ({
-//             ...prevDetails,
-//             [name]: value
-//         }));
-//     };
 
 //     const handleTeamMemberChange = (index, event) => {
 //         const { name, value } = event.target;
@@ -54,58 +6,6 @@
 //         setTeamMembers(members);
 //     };
 
-//     const addTeamMember = () => {
-//         if (teamMembers.length < 2) {
-//             setTeamMembers([...teamMembers, { name: '', address: '', phone: '', college: '' }]);
-//         }
-//     };
-
-//     const removeTeamMember = (index) => {
-//         const members = teamMembers.filter((_, memberIndex) => memberIndex !== index);
-//         setTeamMembers(members);
-//     };
-
-//     useEffect(() => {
-//         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-//             if (currentUser) {
-//                 setUser(currentUser);
-//                 await checkIfFormSubmitted(currentUser.uid);
-//             }
-//         });
-//         return () => unsubscribe();
-//     }, []);
-
-//     useEffect(() => {
-//         if (user) {
-//             if (teamMembers.length >= 0) {
-//             const storage = getStorage();
-//             let qrFileName = 'QR1.png'; // Default for team size 1
-        
-//             if (teamMembers.length === 1) {
-//                 qrFileName = 'QR2.png'; // For team size 2
-//             } else if (teamMembers.length === 2) {
-//                 qrFileName = 'QR3.png'; // For team size 3
-//             }
-        
-//             const qrRef = ref(storage, `qr_codes/${qrFileName}`);
-
-//             checkPrice();
-
-//             getDownloadURL(qrRef)
-//                 .then((url) => {
-//                 setQrCodeURL(url); // Set the QR code URL based on team size
-//                 })
-//                 .catch((error) => {
-//                 console.error('Error fetching QR code:', error);
-//                 });
-//             }
-//         }
-//       }, [teamMembers]); // This will run whenever the team size changes
-
-//     const handleFileChange = (e) => {
-//         e.preventDefault();
-//         setFile(e.target.files[0]);
-//     };
 
 //     const checkPrice = async () => {
 //         const docRef = doc(db, 'id', 'prices');
@@ -122,99 +22,6 @@
 //             }
 //         }
 //     };
-
-//     const checkIfFormSubmitted = async (userId) => {
-//         const docRef = doc(db, 'users', userId);
-//         try {
-//             const docSnap = await getDoc(docRef);
-//             if (docSnap.exists()) {
-//                 const data = docSnap.data();
-//                 setFormSubmitted(true);
-//                 setMunID(data.munID);
-//                 setStatus(data.status);
-//             } else {
-//                 console.log("No such document!");
-//             }
-//         } catch (e) {
-//             console.error("Error fetching document:", e);
-//         }
-//     };
-    
-//     // To ensure you capture state updates:
-//     useEffect(() => {
-//         if (munID || status) {
-//             console.log("Updated status:", status);
-//             console.log("Updated MUN ID:", munID);
-//         }
-//     }, [status, munID]); // This effect will run when status or munID change
-    
-
-//     const handleSubmit = async (e) => {
-//         e.preventDefault();
-//         if (!user) {
-//             alert("Please sign in with Google to submit the form.");
-//             return;
-//         }
-
-//     try {
-// 		const userId = user.uid;
-//         const idDoc = doc(db, "id", "id");
-//         const idSnap = await getDoc(idDoc);
-//         const atomicID = idSnap.data().id;
-//         const todaysDate = new Date();
-//         const munID = `MUN-${todaysDate.getMonth()+1}${todaysDate.getDate()}${atomicID + 1}`; // Generate a unique MUN ID
-
-//         let imageURL = null;
-//         if (file) {
-//             const storage = getStorage();
-//             const storageRef = ref(
-//               storage,
-//               `payment_screenshots/${userId}/${file.name}`
-//             );
-//             await uploadBytes(storageRef, file);
-//             imageURL = await getDownloadURL(storageRef);
-//         }
-//             // Submit the leader and team member details
-//             await setDoc(doc(db, 'users', userId), {
-//                 leaderDetails,
-//                 teamMembers,
-//                 email: user.email,
-//                 uid: userId,
-//                 munID,
-//                 status: false,
-//                 imageURL
-//             });
-        
-//             await setDoc(idDoc, {
-//                 id: atomicID + 1
-//             });
-
-//             setFormSubmitted(true);
-//             setMunID(munID);
-
-//             toast({
-//                 title: 'Registration Successful.',
-//                 description: 'Your team details have been recorded.',
-//                 status: 'success',
-//                 duration: 5000,
-//                 isClosable: true,
-//             });
-//         } catch (error) {
-//             console.error("Error submitting form:", error);
-//         }
-//     };
-
-//     // Check if user is signed in on page load
-//     useEffect(() => {
-//     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-//         if (currentUser) {
-//         setUser(currentUser);
-//         } else {
-//         setUser(null);
-//         }
-//     });
-//     return () => unsubscribe();
-//     }, []);
 
 import { CheckIcon, WarningTwoIcon } from '@chakra-ui/icons';
 import AnimationRevealPage from 'helpers/AnimationRevealPage';
@@ -499,56 +306,66 @@ useEffect(() => {
     //     }
     // };
 
-    const handleScreenshotUpload = async (file) => {
-        if (!file) {
-          toast({
+
+
+     // Handle file input change
+  const handleFileChange = (event) => {
+    const selectedFile = event.target.files[0]; // Get the first selected file
+    if (selectedFile) {
+      setFile(selectedFile); // Set the file in state
+    }
+  };
+
+  // Handle the upload process
+  const handleScreenshotUpload = async (e) => {
+    const file = e.target?.files?.[0]; // Safely access the selected file
+    if (!file) {
+        toast({
             title: "No file selected.",
             description: "Please select a file to upload.",
             status: "warning",
             duration: 3000,
             isClosable: true,
-          });
-          return;
-        }
-      
-        try {
-          // Create a reference to the storage location
-          const storageRef = ref(storage, `screenshots/${user.uid}/${file.name}`);
-      
-          // Upload the file to Firebase Storage
-          const snapshot = await uploadBytes(storageRef, file);
-      
-          // Get the download URL after upload is complete
-          const downloadURL = await getDownloadURL(snapshot.ref);
-      
-          toast({
+        });
+        return;
+    }
+
+    try {
+        // Use user.uid as the filename to store the image
+        const storageRef = ref(storage, `screenshots/${user.uid}/${user.uid}.jpg`); // Assuming you want to save as a .jpg file
+
+        // Upload the file to Firebase Storage
+        const snapshot = await uploadBytes(storageRef, file);
+
+        // Get the download URL after upload is complete
+        const downloadURL = await getDownloadURL(snapshot.ref);
+
+        toast({
             title: "Upload successful!",
             description: "Your screenshot has been uploaded.",
             status: "success",
             duration: 3000,
             isClosable: true,
-          });
-      
-          console.log("Screenshot uploaded:", downloadURL);
-      
-          // Optionally, you can store the download URL in Firestore or state
-        } catch (error) {
-          toast({
+        });
+
+        console.log("Screenshot uploaded:", downloadURL);
+
+        // Optionally, you can store the download URL in Firestore or state
+        // Example: saveDownloadURLToFirestore(downloadURL);
+
+    } catch (error) {
+        toast({
             title: "Upload failed.",
             description: error.message,
             status: "error",
             duration: 3000,
             isClosable: true,
-          });
-          console.error("Error uploading screenshot:", error);
-        }
-      };
-      
+        });
+        console.error("Error uploading screenshot:", error);
+    }
+};
 
-    const handleFileChange = (e) => {
-        e.preventDefault();
-        setFile(e.target.files[0]);
-    };
+
 
     // Define the base fee per team size
 const calculateParticipationFee = (teamMembersCount) => {
@@ -565,20 +382,6 @@ const calculateParticipationFee = (teamMembersCount) => {
         return 0;
     }
   };
-
-    const checkPrice = async () => {
-        const docRef = doc(db, 'id', 'prices');
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-            if (teamMembers.length === 0) {
-                setPrice(docSnap.data().one);
-            } else if (teamMembers.length === 1) {
-                setPrice(docSnap.data().two);
-            } else if (teamMembers.length === 2) {
-                setPrice(docSnap.data().three);
-            }
-        }
-    };
 
 
     const handleSubmit = async (e) => {
@@ -798,14 +601,21 @@ return (
                     bg="white"
                 />
             </FormControl>
-                             <FormControl isRequired>
-                                 <FormLabel>Gender</FormLabel>
-                                 <Select name="gender" value={leaderDetails.gender} onChange={handleLeaderChange} bg="white">
-                                     <option value="Male">Male</option>
-                                     <option value="Female">Female</option>
-                                     <option value="Other">Other</option>
-                                 </Select>
-                             </FormControl>
+            <FormControl isRequired>
+  <FormLabel>Gender</FormLabel>
+  <Select 
+    name="gender" 
+    value={leaderDetails.gender} 
+    onChange={handleLeaderChange} 
+    bg="white" 
+    placeholder="Select gender" // Add a placeholder option
+  >
+    <option value="Male">Male</option>
+    <option value="Female">Female</option>
+    <option value="Other">Other</option>
+  </Select>
+</FormControl>
+
                          </VStack>
                          <Button mt={4} colorScheme="blue" onClick={handleNextClick} isDisabled={!isTab1Complete()}>
                         Next
@@ -823,11 +633,11 @@ return (
         {/* State Selection with options */}
         <FormControl isRequired>
             <FormLabel>State</FormLabel>
-            <Select name="state" value={collegeDetails.state} onChange={handleCollegeChange}bg="white">
-                <option value="Other">Other</option>
+            <Select name="state" value={collegeDetails.state} onChange={handleCollegeChange}bg="white" placeholder='Select State'>
                 <option value="Rajasthan">Rajasthan</option>
                 <option value="Gujarat">Gujarat</option>
                 <option value="Uttar Pradesh">Uttar Pradesh</option>
+                <option value="Other">Other</option>
             </Select>
         </FormControl>
         
@@ -1055,7 +865,7 @@ return (
             {/* GST */}
             <Tr>
               <Td>GST (18%)</Td>
-              <Td isNumeric>₹{Math.round((1000 + (accommodationNeeded === "yes" ? numberOfTeamMembers * 2000 : 0)) * 0.18)}</Td>
+              <Td isNumeric>₹{Math.round((calculateParticipationFee(numberOfTeamMembers) + (accommodationNeeded === "yes" ? (numberOfTeamMembers+1) * 2000 : 0)) * 0.18)}</Td>
             </Tr>
 
             {/* Net Payment to be Done */}
@@ -1065,7 +875,7 @@ return (
                 ₹
                 {calculateParticipationFee(numberOfTeamMembers) + 
                   (accommodationNeeded === "yes" ? (numberOfTeamMembers+1) * 2000 : 0) + 
-                  Math.round((1000 + (accommodationNeeded === "yes" ? numberOfTeamMembers * 2000 : 0)) * 0.18)
+                  Math.round((calculateParticipationFee(numberOfTeamMembers) + (accommodationNeeded === "yes" ? (numberOfTeamMembers+1) * 2000 : 0)) * 0.18)
                 }
               </Td>
             </Tr>
@@ -1078,15 +888,21 @@ return (
         {/* QR Code Image */}
         <Box>
   <Heading size="sm" color="blue.500">Scan to Pay</Heading>
-  <Image src="/QR.png" alt="QR Code for Payment" boxSize="150px" />
+  <Image mt='2' src="/payment_qr.jpg" alt="QR Code for Payment" boxSize="200px" />
 </Box>
 
 
-        {/* Screenshot Upload */}
-        <Box>
-          <FormLabel>Upload Payment Screenshot</FormLabel>
-          <Input type="file" onChange={handleScreenshotUpload} accept="image/*" bg="white" />
-        </Box>
+<Box>
+    <FormLabel>Upload Payment Screenshot</FormLabel>
+    <Input
+        type="file"
+        onChange={(e) => handleScreenshotUpload(e)} // Pass the event properly
+        accept="image/*"
+        bg="white"
+    />
+</Box>
+
+
       </VStack>
       {/* Previous Button only in Tab 4 */}
       <Button mt={4} colorScheme="blue" onClick={handlePreviousClick} mr={4}>

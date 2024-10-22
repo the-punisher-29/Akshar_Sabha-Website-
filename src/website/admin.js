@@ -375,24 +375,41 @@ const Admin = () => {
     // Fetch all users registered for MUN
     const fetchRegistrations = async () => {
         try {
-            const registrationsCollection = collection(db, 'events'); // Use the 'events' collection
+            const registrationsCollection = collection(db, 'events');
             const registrationSnapshot = await getDocs(registrationsCollection);
+    
             const registrationList = await Promise.all(
                 registrationSnapshot.docs.map(async (doc) => {
                     const data = doc.data();
-                    const imageURL = data.imageURL ? await getDownloadURL(ref(storage, data.imageURL)) : null; // Get image URL from storage
+                    const docId = doc.id; // Get the document ID
+                    let imageURL = null;
+    
+                    // Construct the path to the image file in Firebase Storage
+                    const imagePath = `screenshots/${docId}/${docId}.jpg`; // Using docId for the image filename
+    
+                    try {
+                        // Fetch the download URL from Firebase Storage
+                        imageURL = await getDownloadURL(ref(storage, imagePath));
+                    } catch (error) {
+                        console.error(`Error fetching image for ${docId}:`, error);
+                    }
+    
                     return {
-                        id: doc.id,
+                        id: docId,
                         ...data,
-                        imageURL // Include the fetched image URL
+                        imageURL // Add imageURL to the registration object
                     };
                 })
             );
+    
+            // Set the registrations data to state
             setRegistrations(registrationList);
         } catch (error) {
             console.error("Error fetching registrations:", error);
         }
     };
+    
+    
 
     // Fetch all preregistrations for Akshar
     const fetchPreregistrations = async () => {
@@ -428,7 +445,7 @@ const Admin = () => {
     // CSV export function for MUN registrations
     const exportToCSV = () => {
         const csvData = [
-            ['MUN ID', 'Name', 'Email', 'Phone', 'Interested In Akshar', 'College', 'Pincode', 'City', 'State', 'Payment Screenshot', 'Status'], // Header
+            ['MUN ID', 'Name', 'Email', 'Phone', 'Interested In Akshar', 'College', 'Pincode', 'City', 'State', 'Payment Screenshot Link', 'Status'], // Header
             ...registrations.map(reg => [
                 reg.munID,
                 reg.leaderDetails?.firstName + ' ' + reg.leaderDetails?.lastName,
@@ -470,14 +487,14 @@ const Admin = () => {
     // CSV export function for Akshar preregistrations
     const exportPreregToCSV = () => {
         const csvData = [
-            ['Akshar ID', 'Name', 'Email', 'Phone', 'College', 'Status'], // Header
+            ['Akshar ID', 'Name', 'Gender', 'Email', 'Phone', 'College'], // Header
             ...preregistrations.map(prereg => [
                 prereg.akrNum,
                 prereg.name,
+                prereg.gender,
                 prereg.email,
                 prereg.phoneNo || 'N/A',
                 prereg.college || 'N/A',
-                prereg.status ? 'Approved' : 'Pending'
             ])
         ];
 
@@ -517,76 +534,76 @@ const Admin = () => {
 
     return (
         <Box p={5} maxW="1200px" mx="auto">
-            <Heading as="h2" mb={6} textAlign="center">Admin Panel</Heading>
-            <Tabs variant="enclosed">
-                <TabList>
-                    <Tab>Akshar Sabha</Tab>
-                    <Tab>Akshar</Tab>
-                </TabList>
+        <Heading as="h2" mb={6} textAlign="center">Admin Panel</Heading>
+        <Tabs variant="enclosed">
+            <TabList>
+                <Tab>Akshar Sabha</Tab>
+                <Tab>Akshar</Tab>
+            </TabList>
 
-                <TabPanels>
-                    <TabPanel>
-                        <Button 
-                            colorScheme="blue" 
-                            mb={4} 
-                            onClick={exportToCSV}
-                        >
-                            Export MUN Registrations to CSV
-                        </Button>
-                        {registrations.length === 0 ? (
-                            <Text>No registrations found.</Text>
-                        ) : (
-                            <Table variant="simple">
-                                <Thead>
-                                    <Tr>
-                                        <Th>MUN ID</Th>
-                                        <Th>Name</Th>
-                                        <Th>Email</Th>
-                                        <Th>Phone</Th>
-                                        <Th>Interested In Akshar</Th>
-                                        <Th>College</Th>
-                                        <Th>Pincode</Th>
-                                        <Th>City</Th>
-                                        <Th>State</Th>
-                                        <Th>Payment Screenshot</Th>
-                                        <Th>Status</Th>
+            <TabPanels>
+                <TabPanel>
+                    <Button 
+                        colorScheme="blue" 
+                        mb={4} 
+                        onClick={exportToCSV}
+                    >
+                        Export MUN Registrations to CSV
+                    </Button>
+                    {registrations.length === 0 ? (
+                        <Text>No registrations found.</Text>
+                    ) : (
+                        <Table variant="simple">
+                            <Thead>
+                                <Tr>
+                                    <Th>MUN ID</Th>
+                                    <Th>Name</Th>
+                                    <Th>Email</Th>
+                                    <Th>Phone</Th>
+                                    <Th>Interested In Akshar</Th>
+                                    <Th>College</Th>
+                                    <Th>Pincode</Th>
+                                    <Th>City</Th>
+                                    <Th>State</Th>
+                                    <Th>Payment Screenshot Link</Th>
+                                    <Th>Status</Th>
+                                </Tr>
+                            </Thead>
+                            <Tbody>
+                                {registrations.map((registration) => (
+                                    <Tr key={registration.id}> {/* Use registration.id for a more unique key */}
+                                        <Td>{registration.munID}</Td>
+                                        <Td>{`${registration.leaderDetails?.firstName || ''} ${registration.leaderDetails?.lastName || ''}`}</Td>
+                                        <Td>{registration.leaderDetails?.email || registration.email}</Td>
+                                        <Td>{registration.leaderDetails?.phone || 'N/A'}</Td>
+                                        <Td>{registration.interestedInAkshar}</Td>
+                                        <Td>{registration.collegeDetails?.collegeName || 'N/A'}</Td>
+                                        <Td>{registration.collegeDetails?.pincode || 'N/A'}</Td>
+                                        <Td>{registration.collegeDetails?.city || 'N/A'}</Td>
+                                        <Td>{registration.collegeDetails?.state || 'N/A'}</Td>
+                                        <Td>
+                                            {registration.imageURL ? (
+                                                <a href={registration.imageURL} target="_blank" rel="noopener noreferrer">
+                                                    {registration.imageURL} {/* Display the URL as text */}
+                                                </a>
+                                            ) : (
+                                                <Text color="red.500">No Image</Text>
+                                            )}
+                                        </Td>
+                                        <Td>
+                                            <select 
+                                                value={registration.status} 
+                                                onChange={(e) => handleStatusChange(registration.id, e.target.value)}
+                                            >
+                                                <option value="false">Pending</option>
+                                                <option value="true">Approved</option>
+                                            </select>
+                                        </Td>
                                     </Tr>
-                                </Thead>
-                                <Tbody>
-                                    {registrations.map((registration, index) => (
-                                        <Tr key={index}>
-                                            <Td>{registration.munID}</Td>
-                                            <Td>{registration.leaderDetails?.firstName + ' ' + registration.leaderDetails?.lastName}</Td>
-                                            <Td>{registration.leaderDetails?.email || registration.email}</Td>
-                                            <Td>{registration.leaderDetails?.phone || 'N/A'}</Td>
-                                            <Td>{registration.interestedInAkshar}</Td>
-                                            <Td>{registration.collegeDetails?.collegeName || 'N/A'}</Td>
-                                            <Td>{registration.collegeDetails?.pincode || 'N/A'}</Td>
-                                            <Td>{registration.collegeDetails?.city || 'N/A'}</Td>
-                                            <Td>{registration.collegeDetails?.state || 'N/A'}</Td>
-                                            <Td>
-                                                {registration.imageURL ? (
-                                                    <a href={registration.imageURL} target="_blank" rel="noopener noreferrer">
-                                                        View Image
-                                                    </a>
-                                                ) : (
-                                                    'No Image'
-                                                )}
-                                            </Td>
-                                            <Td>
-                                                <select 
-                                                    value={registration.status} 
-                                                    onChange={(e) => handleStatusChange(registration.id, e.target.value)}
-                                                >
-                                                    <option value="false">Pending</option>
-                                                    <option value="true">Approved</option>
-                                                </select>
-                                            </Td>
-                                        </Tr>
-                                    ))}
-                                </Tbody>
-                            </Table>
-                        )}
+                                ))}
+                            </Tbody>
+                        </Table>
+                    )}
                     </TabPanel>
                     <TabPanel>
                         <Button 
@@ -604,6 +621,7 @@ const Admin = () => {
                                     <Tr>
                                         <Th>Akshar ID</Th>
                                         <Th>Name</Th>
+                                        <Th>Gender</Th>
                                         <Th>Email</Th>
                                         <Th>Phone</Th>
                                         <Th>College</Th>
@@ -614,6 +632,7 @@ const Admin = () => {
                                         <Tr key={index}>
                                             <Td>{preregistration.akrNum}</Td>
                                             <Td>{preregistration.name}</Td>
+                                            <Td>{preregistration.gender}</Td>
                                             <Td>{preregistration.email}</Td>
                                             <Td>{preregistration.phoneNo || 'N/A'}</Td>
                                             <Td>{preregistration.college || 'N/A'}</Td>

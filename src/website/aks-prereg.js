@@ -305,6 +305,7 @@ const PreRegistrationPage = () => {
     const [address, setAddress] = useState('');
     const [interest, setInterest] = useState('');
     const [akrNum, setAkrNum] = useState(''); // New state for akrNum
+    const [gender, setGender] = useState('');
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -332,6 +333,10 @@ const PreRegistrationPage = () => {
         } catch (error) {
             console.error("Error checking registration:", error);
         }
+    };
+
+    const handleGenderChange = (e) => {
+        setGender(e.target.value);
     };
 
     const handleGoogleSignIn = async () => {
@@ -389,7 +394,8 @@ const PreRegistrationPage = () => {
             rollNo,
             name,
             phoneNo,
-            email: user.email, // Save user's email from auth
+            email: user.email,
+            gender, // Save user's email from auth
             college,
             address,
             interest,
@@ -409,14 +415,16 @@ const PreRegistrationPage = () => {
                 </Text>
 
                 <Box display="flex" justifyContent="center" mb={5}>
-                    <Image
-                        src="/bg-aksahr.jpg" // Replace with the actual path to your Akshar image
-                        alt="Akshar Festival"
-                        borderRadius="md"
-                        boxSize="600px" // Adjust size as needed
-                        objectFit="contain" // Adjust as necessary
-                    />
-                </Box>
+    <Image
+        src="/bg-aksahr.jpg" // Replace with the actual path to your Akshar image
+        alt="Akshar Festival"
+        borderRadius="md"
+        width="800px"  // Set custom width
+        height="500px" // Set custom height
+        objectFit="contain" // Adjust as necessary: 'cover', 'fill', 'none', etc.
+    />
+</Box>
+
 
                 {user ? (
                     <Box textAlign="center">
@@ -471,6 +479,20 @@ const PreRegistrationPage = () => {
                                             maxLength={10}
                                             width="400px" // Set width here
                                         />
+                                    </FormControl>
+                                    <FormControl id="gender" mb={3} isRequired>
+                                        <FormLabel>Gender</FormLabel>
+                                        <Select
+                                            placeholder="Select gender"
+                                            value={gender}
+                                            onChange={handleGenderChange}
+                                            bg="white"
+                                            width="400px"
+                                        >
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
+                                            <option value="Other">Other</option>
+                                        </Select>
                                     </FormControl>
 
                                     <FormControl id="college" mb={3} isRequired>

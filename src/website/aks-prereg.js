@@ -455,6 +455,7 @@ const PreRegistrationPage = () => {
                                             width="400px" // Set width here
                                         />
                                     </FormControl>
+                                    
 
                                     <FormControl id="phoneNo" mb={3} isRequired>
                                         <FormLabel>Phone No</FormLabel>

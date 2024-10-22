@@ -389,7 +389,7 @@ const isTab3Complete = () => {
 // Function to check if the form has already been submitted by the authenticated user
 const checkIfFormSubmitted = async (email) => {
   try {
-      const q = query(collection(db, "users"), where("email", "==", email)); // Use authenticated user's email
+      const q = query(collection(db, "events"), where("email", "==", email)); // Use authenticated user's email
       const querySnapshot = await getDocs(q);
 
       if (!querySnapshot.empty) {

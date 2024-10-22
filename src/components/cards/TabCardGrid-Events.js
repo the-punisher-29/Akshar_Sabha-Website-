@@ -454,7 +454,9 @@ export default ({
             ))}
           </TabContent>
         </div>
+        
       </ContentWithPaddingXl>
     </Container>
+    
   );
 };

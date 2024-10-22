@@ -135,6 +135,17 @@ export const DesktopNavLinks = tw.nav`
   hidden lg:flex flex-1 justify-between items-center
 `;
 
+export const PreRegisterButton = styled(NavLink)`
+  ${tw`
+    px-4 py-2 rounded-lg bg-orange-500 text-white
+    font-semibold tracking-wide transition duration-300
+    border-b-0
+    hocus:bg-orange-600 hocus:text-orange-100
+    focus:shadow-outline
+    ml-4
+  `}
+`;
+
 export default ({
   roundedHeaderButton = false,
   logoLink,
@@ -216,9 +227,7 @@ export default ({
         {links}
       </DesktopNavLinks>
 
-      <MobileNavLinksContainer
-        css={collapseBreakpointCss.mobileNavLinksContainer}
-      >
+      <MobileNavLinksContainer css={collapseBreakpointCss.mobileNavLinksContainer}>
         {logoLink}
         <MobileNavLinks
           initial={{ x: "150%", display: "none" }}
@@ -227,16 +236,8 @@ export default ({
         >
           {links}
         </MobileNavLinks>
-        <NavToggle
-          onClick={toggleNavbar}
-          className={showNavLinks ? "open" : "closed"}
-          
-        >
-          {showNavLinks ? (
-            <CloseIcon tw="w-6 h-6" />
-          ) : (
-            <MenuIcon tw="w-6 h-6" />
-          )}
+        <NavToggle onClick={toggleNavbar} className={showNavLinks ? "open" : "closed"}>
+          {showNavLinks ? <CloseIcon tw="w-6 h-6" /> : <MenuIcon tw="w-6 h-6" />}
         </NavToggle>
       </MobileNavLinksContainer>
     </Header>

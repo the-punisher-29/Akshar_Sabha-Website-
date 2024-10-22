@@ -1,41 +1,4 @@
-// import AnimationRevealPage from 'helpers/AnimationRevealPage';
-// import { useState, useEffect } from 'react';
-// import React from 'react';
-// import { useLocation, useHistory } from 'react-router-dom';
 
-// import Feature from "components/features/TwoColSingleFeatureWithStats2-button.js";
-// import Header from 'components/headers/light.js'
-// import Footer from "components/footers/Home-Footer";
-
-// import { auth, provider, db } from '../firebase/firebase';
-// import { signInWithPopup } from "firebase/auth";
-// import { onAuthStateChanged } from 'firebase/auth';
-// import { doc, setDoc, getDoc } from 'firebase/firestore';
-// import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { CheckIcon } from '@chakra-ui/icons';
-
-// import {
-//     Box,
-//     VStack,
-//     FormControl,
-//     FormLabel,
-//     Input,
-//     useToast,
-//     IconButton,
-//     Divider,
-//     Button,
-//     Heading,
-//     Image,
-//     Text,
-//     Icon,
-//     HStack,
-//     Tabs,
-//     TabList,
-//     TabPanels,
-//     TabPanel,
-//     Tab,
-//     Select
-// } from '@chakra-ui/react'
 // import { DeleteIcon, CheckCircleIcon, WarningIcon } from '@chakra-ui/icons';
 // import { FcGoogle } from "react-icons/fc";
 
@@ -420,7 +383,7 @@ import { CheckIcon } from '@chakra-ui/icons';
 
 // export default Events;
 
-
+import { CheckIcon, WarningTwoIcon } from '@chakra-ui/icons';
 import AnimationRevealPage from 'helpers/AnimationRevealPage';
 import { useState, useEffect } from 'react';
 import React from 'react';
@@ -429,9 +392,9 @@ import { useLocation, useHistory } from 'react-router-dom';
 import Feature from "components/features/TwoColSingleFeatureWithStats2-button.js";
 import Header from 'components/headers/light.js';
 import Footer from "components/footers/Home-Footer";
-
+//import { FcGoogle } from 'react-icons/fc';
 import { auth, provider, db, storage } from '../firebase/firebase';
-import { signInWithPopup } from "firebase/auth";
+import { getAuth,signInWithPopup, signOut } from 'firebase/auth';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -458,7 +421,13 @@ import {
     Tab,
     Select,
     Radio,
-    RadioGroup
+    RadioGroup,
+    Table,
+    Tbody,
+    Tr,
+    Td,
+    FormHelperText
+
 } from '@chakra-ui/react';
 import { DeleteIcon, CheckCircleIcon, WarningIcon } from '@chakra-ui/icons';
 import { FcGoogle } from "react-icons/fc";
@@ -473,19 +442,26 @@ function Events() {
     const card = location.state;
     const history = useHistory();
     const toast = useToast();
+    
 
     if (!card) goBackToEvents(history);
 
+    const [accommodationNeeded, setAccommodationNeeded] = useState("no");
     const [user, setUser] = useState(null);
     const [formSubmitted, setFormSubmitted] = useState(false);
     const [munID, setMunID] = useState('');
     const [status, setStatus] = useState('');
-    const [teamMembers, setTeamMembers] = useState([]);
+    //const [teamMembers, setTeamMembers] = useState([]);
     const [file, setFile] = useState(null);
     const [qrCodeURL, setQrCodeURL] = useState(null);
     const [price, setPrice] = useState(null);
-    const [numberOfTeamMembers, setNumberOfTeamMembers] = useState(1);
-    const [interestedInAkshar, setInterestedInAkshar] = useState('no');
+    const [teamMembers, setTeamMembers] = useState([
+        { name: '', rollNo: '', email: '' },
+        { name: '', rollNo: '', email: '' },
+        { name: '', rollNo: '', email: '' },
+    ]);
+  const [numberOfTeamMembers, setNumberOfTeamMembers] = useState(0);
+  const [interestedInAkshar, setInterestedInAkshar] = useState('');
 
     const [leaderDetails, setLeaderDetails] = useState({
         firstName: '',
@@ -503,6 +479,117 @@ function Events() {
         areaType: '',
         pincode: ''
     });
+
+    const [activeTabIndex, setActiveTabIndex] = useState(0); // State to track active tab
+
+    const handleNextClick = () => {
+        if (activeTabIndex < 3) { // Assuming there are 4 tabs (0-3)
+            setActiveTabIndex((prevIndex) => prevIndex + 1);
+        }
+    };
+
+    const handlePreviousClick = () => {
+        if (activeTabIndex > 0) { // Prevent going below 0
+            setActiveTabIndex((prevIndex) => prevIndex - 1);
+        }
+    };
+
+    // const [activeTabIndex, setActiveTabIndex] = useState(0);
+
+        // Handler for name fields to allow only alphabetic characters and spaces
+        const handleNameChange = (e) => {
+            const { name, value } = e.target;
+            const regex = /^[a-zA-Z\s]*$/; // Regex to match only letters and spaces
+            if (regex.test(value) || value === '') {
+                setLeaderDetails((prevDetails) => ({
+                    ...prevDetails,
+                    [name]: value,
+                }));
+            }
+        };
+    
+        // Handler for phone fields to allow only 10-digit numbers
+        const handlePhoneChange = (e) => {
+            const { name, value } = e.target;
+            const regex = /^\d{0,10}$/; // Regex to match only digits (max 10)
+            if (regex.test(value)) {
+                setLeaderDetails((prevDetails) => ({
+                    ...prevDetails,
+                    [name]: value,
+                }));
+            }
+        };
+
+    // // Validation for each tab
+    // const isValidTab = () => {
+    //     // Validation for Tab 1 (Leader Details)
+    //     if (activeTabIndex === 0) {
+    //         const { redId = '', firstName = '', lastName = '', phone = '' } = leaderDetails;
+            
+    //         console.log("Tab 1 Validation:", { redId, firstName, lastName, phone }); // Debugging line
+    
+    //         const isValid = (
+    //             redId.trim() !== '' &&
+    //             firstName.trim() !== '' &&
+    //             lastName.trim() !== '' &&
+    //             /^\d{10}$/.test(phone) // Phone must be 10 digits
+    //         );
+    
+    //         console.log("Tab 1 Is Valid:", isValid); // Debugging line
+    //         return isValid;
+    //     }
+    
+    //     // Validation for Tab 2 (College Details)
+    //     if (activeTabIndex === 1) {
+    //         const { collegeName = '', state = '', city = '', areaType = '', pincode = '' } = collegeDetails;
+    
+    //         console.log("Tab 2 Validation:", { collegeName, state, city, areaType, pincode }); // Debugging line
+    
+    //         return (
+    //             collegeName.trim() !== '' &&
+    //             state.trim() !== '' &&
+    //             city.trim() !== '' &&
+    //             areaType.trim() !== '' &&
+    //             /^\d{6}$/.test(pincode) // Pincode must be exactly 6 digits
+    //         );
+    //     }
+    
+    //     // Validation for Tab 3 (Team Members)
+    //     if (activeTabIndex === 2) {
+    //         if (numberOfTeamMembers < 1 || numberOfTeamMembers > 3) {
+    //             return false; // Must be between 1 and 3 team members
+    //         }
+            
+    //         for (let i = 0; i < numberOfTeamMembers; i++) {
+    //             const member = teamMembers[i] || {}; // Fallback to empty object if undefined
+    
+    //             console.log("Team Member Validation:", member); // Debugging line
+    
+    //             if (
+    //                 member.name.trim() === '' ||
+    //                 member.rollNo.trim() === '' ||
+    //                 !/\S+@\S+\.\S+/.test(member.email) // Basic email validation
+    //             ) {
+    //                 return false; 
+    //             }
+    //         }
+    //     }
+    
+    //     // Tab 4: No validation needed, just return true
+    //     return true;
+    // };
+    
+    
+
+    // const handleNextClick = () => {
+    //     if (isValidTab()) {
+    //         setActiveTabIndex((prevIndex) => prevIndex + 1);
+    //     } else {
+    //         alert('Please fill in all required fields!'); // Alert if validation fails
+    //     }
+    // };
+    
+    
      
 
     const checkIfFormSubmitted = async (userId) => {
@@ -521,25 +608,96 @@ function Events() {
         } catch (error) {
             console.error("Error checking form submission:", error);
         }
-    };
+    }; 
     
-    const signInWithGoogle = async () => {
-        try {
-            const result = await signInWithPopup(auth, provider);
-            setUser(result.user);
-            await checkIfFormSubmitted(result.user.uid); // Check if the user has already submitted the form
-        } catch (error) {
-            console.error("Error during Google sign-in:", error);
-        }
-    };
+    
+    // const signInWithGoogle = async () => {
+    //     try {
+    //         const result = await signInWithPopup(auth, provider);
+    //         const loggedInUser = result.user;
+    //         setUser(loggedInUser);
+    //         localStorage.setItem('user', JSON.stringify(loggedInUser));  // Store login state in localStorage
+    //         await checkIfFormSubmitted(loggedInUser.uid);
+    //     } catch (error) {
+    //         console.error("Error during Google sign-in:", error);
+    //     }
+    // };
 
-    const handleLeaderChange = (e) => {
-        const { name, value } = e.target;
-        setLeaderDetails((prevDetails) => ({
-            ...prevDetails,
-            [name]: value
-        }));
-    };
+    // const handleLogout = () => {
+    //     signOut(auth).then(() => {
+    //         setUser(null);
+    //         localStorage.removeItem('user');
+    //     }).catch((error) => {
+    //         console.error("Error during sign-out:", error);
+    //     });
+    // };
+
+     // Handle user authentication state
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+      } else {
+        setUser(null);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Google Sign-In function
+  const handleGoogleSignIn = async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      setUser(result.user);
+      toast({
+        title: "Sign-in successful.",
+        description: `Welcome, ${result.user.displayName}`,
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      toast({
+        title: "Sign-in failed.",
+        description: error.message,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+  // Logout function
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setUser(null);
+      toast({
+        title: "Signed out.",
+        description: "You have successfully signed out.",
+        status: "info",
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      toast({
+        title: "Sign-out failed.",
+        description: error.message,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const handleLeaderChange = (e) => {
+    const { name, value } = e.target;
+    setLeaderDetails((prevDetails) => ({
+        ...prevDetails,
+        [name]: value,
+    }));
+};
+
 
     const handleCollegeChange = (e) => {
         const { name, value } = e.target;
@@ -562,10 +720,72 @@ function Events() {
     //     }
     // };
 
+    const handleScreenshotUpload = async (file) => {
+        if (!file) {
+          toast({
+            title: "No file selected.",
+            description: "Please select a file to upload.",
+            status: "warning",
+            duration: 3000,
+            isClosable: true,
+          });
+          return;
+        }
+      
+        try {
+          // Create a reference to the storage location
+          const storageRef = ref(storage, `screenshots/${user.uid}/${file.name}`);
+      
+          // Upload the file to Firebase Storage
+          const snapshot = await uploadBytes(storageRef, file);
+      
+          // Get the download URL after upload is complete
+          const downloadURL = await getDownloadURL(snapshot.ref);
+      
+          toast({
+            title: "Upload successful!",
+            description: "Your screenshot has been uploaded.",
+            status: "success",
+            duration: 3000,
+            isClosable: true,
+          });
+      
+          console.log("Screenshot uploaded:", downloadURL);
+      
+          // Optionally, you can store the download URL in Firestore or state
+        } catch (error) {
+          toast({
+            title: "Upload failed.",
+            description: error.message,
+            status: "error",
+            duration: 3000,
+            isClosable: true,
+          });
+          console.error("Error uploading screenshot:", error);
+        }
+      };
+      
+
     const handleFileChange = (e) => {
         e.preventDefault();
         setFile(e.target.files[0]);
     };
+
+    // Define the base fee per team size
+const calculateParticipationFee = (teamMembersCount) => {
+    switch (teamMembersCount) {
+      case 0:
+        return 2000;
+      case 1:
+        return 4000;
+      case 2:
+        return 6000; // Adjust these values if needed
+      case 3:
+        return 8000;
+      default:
+        return 0;
+    }
+  };
 
     const checkPrice = async () => {
         const docRef = doc(db, 'id', 'prices');
@@ -580,6 +800,7 @@ function Events() {
             }
         }
     };
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -670,98 +891,260 @@ function Events() {
             });
         }
     };
-    
-    
-    
-    
 
-    return (
-        <AnimationRevealPage>
-            <Header />
-            <Feature 
-                subheading={card.date}
-                heading={card.title}
-                description={card.description ? card.description : null}
-                imageSrc={card.imageSrc}
-                primaryButtonText="Register Now!"
-                registrableEvent={card.registrableEvent ? card.registrableEvent : false}
-                linkss={card.linkss ? card.linkss : ""}
-                linkss1={card.linkss1 ? card.linkss1 : ""}
-                timing={card.timing === "Online Event" ? true : false}
-                minTeamSize={card.minTeamSize ? card.minTeamSize : 1}
-                maxTeamSize={card.maxTeamSize ? card.maxTeamSize : 1}
-                prize={card.prize ? card.prize : ""}
-                isFlagship={card.isFlagship ? card.isFlagship : true}
-                rulebookLink={card.rulebookLink ? card.rulebookLink : ""}
-            />
 
-<Box p={5} border="0px solid" borderColor="gray.300" borderRadius="8px" maxWidth="600px" margin="auto" bg="transparent">
-    {user ? (
-        formSubmitted ? (
-            <Box textAlign="center">
-                <Heading as="h3" size="lg" color="blue.500">Application Status</Heading>
-                <Text>Your MUN ID: {munID}</Text>
+// const isFormValidForTab = (index) => {
+//     switch (index) {
+//         case 0:
+//             return leaderDetails.firstName && leaderDetails.lastName && leaderDetails.phone && leaderDetails.gender && leaderDetails.redId;
+//         case 1:
+//             return collegeDetails.collegeName && collegeDetails.state && collegeDetails.city && collegeDetails.areaType && collegeDetails.pincode;
+//         case 2:
+//             return teamMembers.length > 0; // Example validation for team members tab
+//         default:
+//             return true;
+//     }
+// };
 
-                {status === 'true' ? (
-                    <VStack mt={4}>
-                        <Icon as={CheckCircleIcon} w={10} h={10} color="green" />
-                        <Text fontSize="lg" color="green.600">Your application is approved!</Text>
-                    </VStack>
-                ) : (
-                    <VStack mt={4}>
-                        <Icon as={CheckIcon} w={10} h={10} color="green.500" />
-                        <Text fontSize="lg" color="green.600">Your request is submitted!.</Text>
-                    </VStack>
-                )}
+    
+//     return (
+//         <AnimationRevealPage>
+//             <Header />
+//             <Feature 
+//                 subheading={card.date}
+//                 heading={card.title}
+//                 description={card.description ? card.description : null}
+//                 imageSrc={card.imageSrc}
+//                 primaryButtonText="Register Now!"
+//                 registrableEvent={card.registrableEvent ? card.registrableEvent : false}
+//                 linkss={card.linkss ? card.linkss : ""}
+//                 linkss1={card.linkss1 ? card.linkss1 : ""}
+//                 timing={card.timing === "Online Event" ? true : false}
+//                 minTeamSize={card.minTeamSize ? card.minTeamSize : 1}
+//                 maxTeamSize={card.maxTeamSize ? card.maxTeamSize : 1}
+//                 prize={card.prize ? card.prize : ""}
+//                 isFlagship={card.isFlagship ? card.isFlagship : true}
+//                 rulebookLink={card.rulebookLink ? card.rulebookLink : ""}
+//             />
 
-                <Text>For any Query Contact +91 9509615569</Text>
-            </Box>
-        ) : (
-            <Tabs variant="soft-rounded" isFitted>
-                <TabList mb="1em" >
-                    <Tab>1</Tab>
-                    <Tab>2</Tab>
-                    <Tab>3</Tab>
-                    <Tab>4</Tab>
-                </TabList>
-                <TabPanels>
-                    {/* Tab 1: Team Leader Personal Details */}
-                    <TabPanel >
+// <Box p={5} border="0px solid" borderColor="gray.300" borderRadius="8px" maxWidth="600px" margin="auto" bg="transparent">
+//     {user ? (
+//         formSubmitted ? (
+//             <Box textAlign="center">
+//                 <Heading as="h3" size="lg" color="blue.500">Application Status</Heading>
+//                 <Text>Your MUN ID: {munID}</Text>
+
+//                 {status === 'true' ? (
+//                     <VStack mt={4}>
+//                         <Icon as={CheckCircleIcon} w={10} h={10} color="green" />
+//                         <Text fontSize="lg" color="green.600">Your application is approved!</Text>
+//                     </VStack>
+//                 ) : (
+//                     <VStack mt={4}>
+//                         <Icon as={CheckIcon} w={10} h={10} color="green.500" />
+//                         <Text fontSize="lg" color="green.600">Your request is submitted!.</Text>
+//                     </VStack>
+//                 )}
+
+//                 <Text>For any Query Contact +91 9509615569</Text>
+//             </Box>
+//         ) : (
+//             <Tabs variant="soft-rounded" isFitted>
+//                 <TabList mb="1em" >
+//                     <Tab>1</Tab>
+//                     <Tab>2</Tab>
+//                     <Tab>3</Tab>
+//                     <Tab>4</Tab>
+//                 </TabList>
+//                 <TabPanels>
+//                     {/* Tab 1: Team Leader Personal Details */}
+//                     <TabPanel >
+//                         <Heading size="md" color="blue.500">Team Leader Personal Details</Heading>
+//                         <VStack spacing={4}> {/* Add spacing between form fields */}
+//                         <FormControl isRequired>
+//                                 <FormLabel>Reg ID/Roll No</FormLabel>
+//                                 <Input name="redId" value={leaderDetails.redId} onChange={handleLeaderChange} bg="white" />
+//                             </FormControl>
+//                             <FormControl isRequired>
+//                                 <FormLabel>First Name</FormLabel>
+//                                 <Input name="firstName" value={leaderDetails.firstName} onChange={handleLeaderChange} bg="white" />
+//                             </FormControl>
+//                             <FormControl isRequired>
+//                                 <FormLabel>Last Name</FormLabel>
+//                                 <Input name="lastName" value={leaderDetails.lastName} onChange={handleLeaderChange} bg="white" />
+//                             </FormControl>
+//                             <FormControl isRequired>
+//                                 <FormLabel>Phone</FormLabel>
+//                                 <Input name="phone" value={leaderDetails.phone} onChange={handleLeaderChange} bg="white" />
+//                             </FormControl>
+//                             <FormControl>
+//                                 <FormLabel>Alternate Phone</FormLabel>
+//                                 <Input name="alternatePhone" value={leaderDetails.alternatePhone} onChange={handleLeaderChange} bg="white"/>
+//                             </FormControl>
+//                             <FormControl isRequired>
+//                                 <FormLabel>Gender</FormLabel>
+//                                 <Select name="gender" value={leaderDetails.gender} onChange={handleLeaderChange} bg="white">
+//                                     <option value="Male">Male</option>
+//                                     <option value="Female">Female</option>
+//                                     <option value="Other">Other</option>
+//                                 </Select>
+//                             </FormControl>
+//                         </VStack>
+//                     </TabPanel>
+
+//                     {/* Tab 2: College Details */}
+                    
+
+
+//                     {/* Tab 3: Team Members Details */}
+                    
+
+//                     {/* Tab 4: Payment */}
+//                             </TabPanels>
+//                         </Tabs>
+//                     )
+//                 ) : (
+//                     <Box display="flex" justifyContent="center" alignItems="center">
+//                     <Button 
+//                         onClick={signInWithGoogle} 
+//                         leftIcon={<FcGoogle />} 
+//                         colorScheme="teal" 
+//                         variant="solid" 
+//                         size="lg"
+//                         boxShadow="lg"
+//                         _hover={{ backgroundColor: "teal.400" }}
+//                     >
+//                         <Text fontSize="lg" fontWeight="bold">
+//                             Pre-Registration
+//                         </Text>
+//                     </Button>
+//                 </Box>
+
+//                 )}
+//             </Box>     
+//             <Footer />
+//         </AnimationRevealPage>
+//     );
+// }
+// export default Events;
+return (
+    <AnimationRevealPage>
+        <Header />
+        <Feature 
+            subheading={card.date}
+            heading={card.title}
+            description={card.description ? card.description : null}
+            imageSrc={card.imageSrc}
+            primaryButtonText="Register Now!"
+            registrableEvent={card.registrableEvent ? card.registrableEvent : false}
+            linkss={card.linkss ? card.linkss : ""}
+            linkss1={card.linkss1 ? card.linkss1 : ""}
+            timing={card.timing === "Online Event" ? true : false}
+            minTeamSize={card.minTeamSize ? card.minTeamSize : 1}
+            maxTeamSize={card.maxTeamSize ? card.maxTeamSize : 1}
+            prize={card.prize ? card.prize : ""}
+            isFlagship={card.isFlagship ? card.isFlagship : true}
+            rulebookLink={card.rulebookLink ? card.rulebookLink : ""}
+        />
+
+        <Box p={5} border="0px solid" borderColor="gray.300" borderRadius="8px" maxWidth="600px" margin="auto" bg="transparent">
+            {user ? (
+                <Box textAlign="center">
+                    <Text fontSize="lg" color="blue.500">Welcome, {user.displayName}</Text>
+                    <Button mt ={4} mb={4} colorScheme="red" onClick={handleLogout}>
+    Logout
+</Button>
+
+                    {formSubmitted ? (
+                        <Box mt={4}>
+                            <Heading as="h3" size="lg" color="blue.500">Application Status</Heading>
+                            <Text>Your MUN ID: {munID}</Text>
+
+                            {status === 'true' ? (
+                                <VStack mt={4}>
+                                    <Icon as={CheckCircleIcon} w={10} h={10} color="green" />
+                                    <Text fontSize="lg" color="green.600">Your application is approved!</Text>
+                                </VStack>
+                            ) : (
+                                <VStack mt={4}>
+                                    <Icon as={WarningTwoIcon} w={10} h={10} color="yellow.500" />
+                                    <Text fontSize="lg" color="yellow.600">Your application is pending!.</Text>
+                                </VStack>
+                            )}
+
+                            <Text>For any Query Contact +91 9509615569</Text>
+                        </Box>
+                    ) : (
+                        <Tabs variant="soft-rounded" isFitted>
+                            <TabList mb="1em">
+                                <Tab>1</Tab>
+                                <Tab>2</Tab>
+                                <Tab>3</Tab>
+                                <Tab>4</Tab>
+                            </TabList>
+                            <TabPanels>
+                                {/* Tab 1: Team Leader Personal Details */}
+                                <TabPanel >
                         <Heading size="md" color="blue.500">Team Leader Personal Details</Heading>
                         <VStack spacing={4}> {/* Add spacing between form fields */}
                         <FormControl isRequired>
-                                <FormLabel>Reg ID</FormLabel>
-                                <Input name="redId" value={leaderDetails.redId} onChange={handleLeaderChange} bg="white" />
-                            </FormControl>
-                            <FormControl isRequired>
-                                <FormLabel>First Name</FormLabel>
-                                <Input name="firstName" value={leaderDetails.firstName} onChange={handleLeaderChange} bg="white" />
-                            </FormControl>
-                            <FormControl isRequired>
-                                <FormLabel>Last Name</FormLabel>
-                                <Input name="lastName" value={leaderDetails.lastName} onChange={handleLeaderChange} bg="white" />
-                            </FormControl>
-                            <FormControl isRequired>
-                                <FormLabel>Phone</FormLabel>
-                                <Input name="phone" value={leaderDetails.phone} onChange={handleLeaderChange} bg="white" />
-                            </FormControl>
-                            <FormControl>
-                                <FormLabel>Alternate Phone</FormLabel>
-                                <Input name="alternatePhone" value={leaderDetails.alternatePhone} onChange={handleLeaderChange} bg="white"/>
-                            </FormControl>
-                            <FormControl isRequired>
-                                <FormLabel>Gender</FormLabel>
-                                <Select name="gender" value={leaderDetails.gender} onChange={handleLeaderChange} bg="white">
-                                    <option value="Male">Male</option>
-                                    <option value="Female">Female</option>
-                                    <option value="Other">Other</option>
-                                </Select>
-                            </FormControl>
-                        </VStack>
-                    </TabPanel>
+                                <FormLabel>Reg ID/Roll No</FormLabel>
+                                 <Input name="redId" value={leaderDetails.redId} onChange={handleLeaderChange} bg="white" />
+                             </FormControl>
+                             <FormControl isRequired>
+                <FormLabel>First Name</FormLabel>
+                <Input
+                    name="firstName"
+                    value={leaderDetails.firstName}
+                    onChange={handleNameChange} // Use the new handler
+                    bg="white"
+                />
+            </FormControl>
 
-                    {/* Tab 2: College Details */}
-                    <TabPanel>
+            <FormControl isRequired>
+                <FormLabel>Last Name</FormLabel>
+                <Input
+                    name="lastName"
+                    value={leaderDetails.lastName}
+                    onChange={handleNameChange} // Use the new handler
+                    bg="white"
+                />
+            </FormControl>
+
+            <FormControl isRequired>
+                <FormLabel>Phone</FormLabel>
+                <Input
+                    name="phone"
+                    value={leaderDetails.phone}
+                    onChange={handlePhoneChange} // Use the new handler
+                    bg="white"
+                />
+            </FormControl>
+
+            <FormControl>
+                <FormLabel>Alternate Phone</FormLabel>
+                <Input
+                    name="alternatePhone"
+                    value={leaderDetails.alternatePhone}
+                    onChange={handlePhoneChange} // Optionally use the same handler
+                    bg="white"
+                />
+            </FormControl>
+                             <FormControl isRequired>
+                                 <FormLabel>Gender</FormLabel>
+                                 <Select name="gender" value={leaderDetails.gender} onChange={handleLeaderChange} bg="white">
+                                     <option value="Male">Male</option>
+                                     <option value="Female">Female</option>
+                                     <option value="Other">Other</option>
+                                 </Select>
+                             </FormControl>
+                         </VStack>
+                         <Button mt={4} colorScheme="blue" onClick={handleNextClick}>
+                        Next
+                    </Button>
+                     </TabPanel>
+                                {/* Tab 2: College Details */}
+                                <TabPanel>
     <Heading size="md" color="blue.500">College Details</Heading>
     <VStack spacing={4}> {/* Add spacing between form fields */}
         <FormControl isRequired>
@@ -773,10 +1156,10 @@ function Events() {
         <FormControl isRequired>
             <FormLabel>State</FormLabel>
             <Select name="state" value={collegeDetails.state} onChange={handleCollegeChange}bg="white">
+                <option value="Other">Other</option>
                 <option value="Rajasthan">Rajasthan</option>
                 <option value="Gujarat">Gujarat</option>
                 <option value="Uttar Pradesh">Uttar Pradesh</option>
-                <option value="Other">Other</option>
             </Select>
         </FormControl>
         
@@ -833,7 +1216,7 @@ function Events() {
         {collegeDetails.state === 'Uttar Pradesh' && (
             <FormControl isRequired>
                 <FormLabel>City</FormLabel>
-                <Select name="city" value={collegeDetails.city} onChange={handleCollegeChange}>
+                <Select name="city" value={collegeDetails.city} onChange={handleCollegeChange} bg="white">
                     <option value="">Select City</option>
                     <option value="Lucknow">Lucknow</option>
                     <option value="Kanpur">Kanpur</option>
@@ -876,70 +1259,185 @@ function Events() {
             <Input name="pincode" value={collegeDetails.pincode} onChange={handleCollegeChange}  bg="white"/>
         </FormControl>
     </VStack>
+    {/* Previous and Next Buttons in Tab 2 */}
+    <Button mt={4} colorScheme="blue" onClick={handlePreviousClick} mr={4} isDisabled={activeTabIndex === 0}>
+                        Previous
+                    </Button>
+                    <Button mt={4} colorScheme="blue" onClick={handleNextClick}>
+                        Next
+                    </Button>
 </TabPanel>
-
-
-                    {/* Tab 3: Team Members Details */}
-                    <TabPanel><Heading size="md" color="blue.500">Team Members</Heading>
-                                    <FormControl mb={4}>
-                                        <FormLabel>Number of Team Members</FormLabel>
-                                        <Input
-                                            type="number"
-                                            value={numberOfTeamMembers}
-                                            onChange={(e) => setNumberOfTeamMembers(parseInt(e.target.value)) }
-                                            bg="white"/>
-                                    </FormControl>
-                                    {Array.from({ length: numberOfTeamMembers }).map((_, index) => (
-                                        <Box key={index} mt={4}>
-                                            <Heading size="sm" color="blue.500">Team Member {index + 1}</Heading>
-                                            <Input
-                                                placeholder="Name"
-                                                name="name"
-                                                onChange={(e) => handleTeamMemberChange(index, e)}
-                                                mt={2}
-                                                bg="white"/>
-                                            <Input
-                                                placeholder="Roll No"
-                                                name="rollNo"
-                                                onChange={(e) => handleTeamMemberChange(index, e)}
-                                                mt={2}
-                                                bg="white"/>
-                                            <Input
-                                                placeholder="Email"
-                                                name="email"
-                                                onChange={(e) => handleTeamMemberChange(index, e)}
-                                                mt={2}
-                                                bg="white"/>
-                                        </Box>
-                                    ))}
-                                </TabPanel>
-
-                    {/* Tab 4: Payment */}
 <TabPanel>
-    <Heading size="md" color="blue.500">Additional Info</Heading>
-    <FormControl mt={4}>
-        <FormLabel>Interested in attending Akshar?</FormLabel>
-        <HStack spacing={4}> {/* Add horizontal spacing here */}
-            <RadioGroup onChange={setInterestedInAkshar} value={interestedInAkshar} bg="white">
-                <HStack>
-                    <Radio value="yes">Yes</Radio>
-                    <Radio value="no">No</Radio>
-                </HStack>
-            </RadioGroup>
-        </HStack>
-    </FormControl>
-    
-    <Button mt={4} colorScheme="blue" onClick={handleSubmit}>
-        Submit
-    </Button>
+  <Heading size="md" color="blue.500">Team Members</Heading>
+  <FormControl mb={4}>
+    <FormLabel>Number of Team Members (Maximum-3)</FormLabel>
+    <Input
+      type="number"
+      value={numberOfTeamMembers}
+      onChange={(e) => {
+        const value = parseInt(e.target.value);
+
+        // Allow the field to be cleared (NaN is checked to allow clearing input)
+        if (!isNaN(value)) {
+          // Ensure the number doesn't exceed 3
+          if (value <= 3) {
+            setNumberOfTeamMembers(value);
+          } else {
+            alert("You can only have a maximum of 3 team members.");
+          }
+        } else {
+          setNumberOfTeamMembers(''); // Allows clearing the input
+        }
+      }}
+      max="3" // Prevents values greater than 3 from being input
+      min="1" // Optional: Ensure at least 1 team member is selected
+      bg="white"
+    />
+  </FormControl>
+
+  {/* Render team member details inputs based on the number of team members */}
+  {Array.from({ length: numberOfTeamMembers }).map((_, index) => (
+    <Box key={index} mt={4}>
+      <Heading size="sm" color="blue.500">Team Member {index + 1}</Heading>
+      <Input
+        placeholder="Name"
+        name="name"
+        onChange={(e) => handleTeamMemberChange(index, e)}
+        mt={2}
+        bg="white"
+      />
+      <Input
+        placeholder="Roll No"
+        name="rollNo"
+        onChange={(e) => handleTeamMemberChange(index, e)}
+        mt={2}
+        bg="white"
+      />
+      <Input
+        placeholder="Email"
+        name="email"
+        onChange={(e) => handleTeamMemberChange(index, e)}
+        mt={2}
+        bg="white"
+      />
+    </Box>
+  ))}
+  {/* Previous and Next Buttons in Tab 3 */}
+  <Button mt={4} colorScheme="blue" onClick={handlePreviousClick} mr={4}>
+                        Previous
+                    </Button>
+                    <Button mt={4} colorScheme="blue" onClick={handleNextClick}>
+                        Next
+                    </Button>
 </TabPanel>
-                            </TabPanels>
-                        </Tabs>
-                    )
-                ) : (
-                    <Box display="flex" justifyContent="center" alignItems="center">
+
+
+
+                                {/* Tab 4: Additional Info and Payment*/}
+                                <TabPanel>
+      <Heading size="md" color="blue.500">Additional Info</Heading>
+
+      {/* Interested in attending Akshar? */}
+      <FormControl mt={4}>
+        <FormLabel>Interested in attending Akshar?</FormLabel>
+        <HStack spacing={4}>
+          <RadioGroup onChange={setInterestedInAkshar} value={interestedInAkshar} bg="white">
+            <HStack>
+              <Radio value="yes">Yes</Radio>
+              <Radio value="no">No</Radio>
+            </HStack>
+          </RadioGroup>
+        </HStack>
+      </FormControl>
+
+      {/* Accommodation Option */}
+      <FormControl mt={4}>
+        <FormLabel>Do you want accommodation?</FormLabel>
+        <HStack spacing={4}>
+        <RadioGroup onChange={setAccommodationNeeded} value={accommodationNeeded} bg="white">
+          <HStack>
+            <Radio value="yes">Yes</Radio>
+            <Radio value="no">No</Radio>
+          </HStack>
+        </RadioGroup>
+        </HStack>
+      </FormControl>
+
+      {/* Bill Receipt Table */}
+      <Heading size="md" color="blue.500" mt={6}>Payment Summary</Heading>
+      <Box mt={4} p={4} border="1px solid" borderColor="gray.300" borderRadius="8px" maxWidth="600px" bg="gray.50">
+        <Table variant="simple">
+          <Tbody>
+            {/* MUN Participation Fee */}
+            <Tr>
+  <Td>MUN Participation Fee</Td>
+  <Td isNumeric>
+    ₹{calculateParticipationFee(numberOfTeamMembers)} {/* Dynamically calculate based on team members */}
+  </Td>
+</Tr>
+
+            {/* Accommodation Fee */}
+            {accommodationNeeded === "yes" && (
+              <Tr>
+                <Td>Accommodation Fee (₹2000 per person)</Td>
+                <Td isNumeric>₹{(numberOfTeamMembers+1) * 2000}</Td>
+              </Tr>
+            )}
+
+            {/* GST */}
+            <Tr>
+              <Td>GST (18%)</Td>
+              <Td isNumeric>₹{Math.round((1000 + (accommodationNeeded === "yes" ? numberOfTeamMembers * 2000 : 0)) * 0.18)}</Td>
+            </Tr>
+
+            {/* Net Payment to be Done */}
+            <Tr fontWeight="bold">
+              <Td>Net Payment to be Done</Td>
+              <Td isNumeric>
+                ₹
+                {calculateParticipationFee(numberOfTeamMembers) + 
+                  (accommodationNeeded === "yes" ? (numberOfTeamMembers+1) * 2000 : 0) + 
+                  Math.round((1000 + (accommodationNeeded === "yes" ? numberOfTeamMembers * 2000 : 0)) * 0.18)
+                }
+              </Td>
+            </Tr>
+          </Tbody>
+        </Table>
+      </Box>
+
+      {/* QR Code Image and Screenshot Upload */}
+      <HStack mt={6} spacing={6}>
+        {/* QR Code Image */}
+        <Box>
+  <Heading size="sm" color="blue.500">Scan to Pay</Heading>
+  <Image src="/QR.png" alt="QR Code for Payment" boxSize="150px" />
+</Box>
+
+
+        {/* Screenshot Upload */}
+        <Box>
+          <FormLabel>Upload Payment Screenshot</FormLabel>
+          <Input type="file" onChange={handleScreenshotUpload} accept="image/*" bg="white" />
+        </Box>
+      </HStack>
+      {/* Previous Button only in Tab 4 */}
+      <Button mt={4} colorScheme="blue" onClick={handlePreviousClick} mr={4}>
+                        Previous
+                    </Button>
+
+      {/* Submit Button */}
+      <Button mt={4} colorScheme="blue" onClick={handleSubmit}>
+        Submit
+      </Button>
+    </TabPanel>
+    </TabPanels>
+    </Tabs>       
+                    )}
+                </Box>
+            ) : (
+                <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center">
                     <Button 
-                        onClick={signInWithGoogle} 
+                        onClick={handleGoogleSignIn} 
                         leftIcon={<FcGoogle />} 
                         colorScheme="teal" 
                         variant="solid" 
@@ -948,20 +1446,15 @@ function Events() {
                         _hover={{ backgroundColor: "teal.400" }}
                     >
                         <Text fontSize="lg" fontWeight="bold">
-                            Pre-Registration
+                            Registration
                         </Text>
                     </Button>
                 </Box>
-                    // <div>
-                    //     <button onClick={signInWithGoogle}>Register to participate</button>
-                    // </div>
-                )}
-            </Box>
-            <Footer />
-        </AnimationRevealPage>
-    );
+            )}
+        </Box>
+             
+        <Footer />
+    </AnimationRevealPage>
+);
 }
-
 export default Events;
-
-

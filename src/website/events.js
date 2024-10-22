@@ -16,7 +16,7 @@ function Events() {
             <TabGrid
                 heading={
                 <>
-                    Model <HighlightedText>United Nations</HighlightedText>
+                    <HighlightedText>Events</HighlightedText>
                 </>
                 }
             />

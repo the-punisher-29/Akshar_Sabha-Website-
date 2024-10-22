@@ -24,13 +24,12 @@ import EventRegistration from "website/eventRegistration";
 import Dashboard from "website/dashboard";
 // import Guest from "website/guest"
 import Admin from "website/admin"
-
+import PreRegisterPage from "website/aks-prereg";
 import ScrollToTop from "website/scrollToTop";
 
 export const userContext =createContext();
 export default function App() {
-
-  const [loggedIn,SetLoggedIn]=useState(false);
+  const [loggedIn, SetLoggedIn] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -38,78 +37,67 @@ export default function App() {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization:token,
-    }
+        Authorization: token,
+      },
     };
     fetch(`${backendUrl}/api/check_login/`, requestOptions)
-    .then((response)=>{
-      if(response.status===200){
-        SetLoggedIn(true);
-      }
-      else{
-        SetLoggedIn(false);
-      }
-    })
-    .catch((error) => {
-      console.log(error);
-    }
-    );
+      .then((response) => {
+        if (response.status === 200) {
+          SetLoggedIn(true);
+        } else {
+          SetLoggedIn(false);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }, []);
 
-  const toggleLoggedIn=()=>{
+  const toggleLoggedIn = () => {
     SetLoggedIn(!loggedIn);
-  }
-  // If you want to disable the animation just use the disabled `prop` like below on your page's component
-  // return <AnimationRevealPage disabled>xxxxxxxxxx</AnimationRevealPage>;
+  };
 
   return (
-    <userContext.Provider value={{loggedIn,toggleLoggedIn}}>
-      
-    <Router>
-      <ScrollToTop>
-        <Switch>
-          <Route path="/admin">
-            <Admin></Admin>
-          </Route>
-          <Route path="/about">
-            <About></About>
-          </Route>
-          <Route path="/events">
-            <Events></Events>
-          </Route>
-          {/* <Route path="/sponsors">
-            <Sponsors />
-          </Route> */}
-          {/* <Route path="/login"> 
-            <LoginPage />
-          </Route> */}
-          <Route path="/team">
-            <Team />
-          </Route>
-          {/* <Route path="/guests">
-            <Guest />
-          </Route> */}
-          <Route path="/eventDetails">
-            <EventDetails />
-          </Route>
-          <Route path="/signup">
-            <SignupPage />
-          </Route>
-          <Route path="/register">
-            <Register />
-          </Route>
-          <Route path="/eventRegistration">
-            <EventRegistration />
-          </Route>
-          <Route exact path="/dashboard">
-            <Dashboard></Dashboard>
-          </Route>
-          <Route path="/">
-            <Home></Home>
-          </Route>
-        </Switch>
-      </ScrollToTop>
-    </Router>
+    <userContext.Provider value={{ loggedIn, toggleLoggedIn }}>
+      <Router>
+        <ScrollToTop>
+          <Switch>
+            <Route path="/admin">
+              <Admin />
+            </Route>
+            <Route path="/about">
+              <About />
+            </Route>
+            <Route path="/events">
+              <Events />
+            </Route>
+            <Route path="/team">
+              <Team />
+            </Route>
+            <Route path="/eventDetails">
+              <EventDetails />
+            </Route>
+            <Route path="/signup">
+              <SignupPage />
+            </Route>
+            <Route path="/register">
+              <Register />
+            </Route>
+            <Route path="/eventRegistration">
+              <EventRegistration />
+            </Route>
+            <Route path="/pre-register"> {/* Add the pre-register route here */}
+              <PreRegisterPage />
+            </Route>
+            <Route exact path="/dashboard">
+              <Dashboard />
+            </Route>
+            <Route path="/">
+              <Home />
+            </Route>
+          </Switch>
+        </ScrollToTop>
+      </Router>
     </userContext.Provider>
   );
 }

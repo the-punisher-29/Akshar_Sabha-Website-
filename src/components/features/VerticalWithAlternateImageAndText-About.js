@@ -57,7 +57,15 @@ ${tw`mt-2 text-lg leading-loose text-black font-Lato text-left`}
   }
 `;
 const LinkAbout = tw.a`inline-block mt-4 text-sm text-primary-500 font-bold cursor-pointer transition duration-300 border-b-2 border-transparent hover:border-black text-black`;
-
+// New styled component for the pre-register button
+const PreRegisterButton = styled(Link)`
+  ${tw`mt-12 px-6 py-3 bg-orange-500 text-white rounded-lg font-bold text-lg tracking-wide cursor-pointer transition duration-300 hover:bg-orange-600 focus:bg-orange-700`}
+  max-width: 300px; // Limits the button's width
+  display: block; // Ensures it's a block-level element
+  margin: 0 auto; // Centers the button horizontally
+  text-align: center; // Centers the text inside the button
+  margin-top: 40px; // Add extra space between last card and the button
+`;
 const SvgDotPattern1 = tw(
   SvgDotPatternIcon
 )`absolute top-0 left-0 transform -translate-x-20 rotate-90 translate-y-8 -z-10 opacity-25 text-primary-500 fill-current w-24`;
@@ -74,53 +82,46 @@ const SvgDotPattern4 = tw(
 export default () => {
   const cards = [
     {
-      imageSrc: "https://images.squarespace-cdn.com/content/v1/592710626b8f5bb4c8159811/0db6ec6d-0624-4877-a023-7ab5701538be/camille-brodard-kOAU9SG0VX8-unsplash.jpg?format=2500w",
+      imageSrc:
+        "https://images.squarespace-cdn.com/content/v1/592710626b8f5bb4c8159811/0db6ec6d-0624-4877-a023-7ab5701538be/camille-brodard-kOAU9SG0VX8-unsplash.jpg?format=2500w",
       subtitle: "The Essence of Akshar",
-      // title: "Akshar",
       description:
-      " Celebrate literature's beauty, variety, and vibrant nature at Akshar, the annual literary festival hosted by IIT Jodhpur. It brings together a fusion and harmony of students, along with a wide range of literary interests, cultural backgrounds,  and ethnic backgrounds. The program promises to allure attendees with captivating poetry, thought-provoking novels, stimulating literary conversations, spellbound speaker sessions, and entertaining events like open mics, Kavi Sammelan, live music, and theatrical performances.",
-      // url: "https://timerse.com"
+        " Celebrate literature's beauty, variety, and vibrant nature at Akshar, the annual literary festival hosted by IIT Jodhpur. It brings together a fusion and harmony of students, along with a wide range of literary interests, cultural backgrounds,  and ethnic backgrounds. The program promises to allure attendees with captivating poetry, thought-provoking novels, stimulating literary conversations, spellbound speaker sessions, and entertaining events like open mics, Kavi Sammelan, live music, and theatrical performances.",
     },
-
     {
-      imageSrc: "https://images.fineartamerica.com/images/artworkimages/mediumlarge/1/colorful-mosaic-art-blissful-sharon-cummings.jpg",
+      imageSrc:
+        "https://images.fineartamerica.com/images/artworkimages/mediumlarge/1/colorful-mosaic-art-blissful-sharon-cummings.jpg",
       subtitle: "Tesserae",
-      // title: "Theme",
       description:
-      "Tesserae: A Mosaic of Words mirrors a collage of diverse narratives, each contributing to a rich tapestry of storytelling. Like individual tiles in a mosaic, each literary work adds its unique story, style, and message, forming a cohesive whole that celebrates the beauty of diversity in literature. It invites readers to explore the interconnectedness of various narratives and appreciate the vibrant spectrum of voices within the literary world."      
-      // url: "https://timerse.com"
+        "Tesserae: A Mosaic of Words mirrors a collage of diverse narratives, each contributing to a rich tapestry of storytelling. Like individual tiles in a mosaic, each literary work adds its unique story, style, and message, forming a cohesive whole that celebrates the beauty of diversity in literature. It invites readers to explore the interconnectedness of various narratives and appreciate the vibrant spectrum of voices within the literary world.",
     },
-
     {
-      imageSrc: "https://us.123rf.com/450wm/tomertu/tomertu2010/tomertu201000252/157378249-old-feather-quill-ink-pen-with-inkwell-and-old-books-over-wooden-desk-in-front-of-black-wall-backgro.jpg?ver=6",
-      // subtitle: "Lit is Hit",
-      // title: "Why Lit?",
-      description:
-      `Aldous Huxley once said <strong><i>“Every man's memory is his private literature.”</i></strong>. Therefore the team at Akshar invites you to make great memories in this <strong><i>"lieu de mémoire"</i></strong> of Akshar 2024.  The enthusiasm and passion you bring, akin to a glorious sunrise, will help radiate our love for literature throughout the country.`,
-      // url: "https://timerse.com"
-    }
+      imageSrc:
+        "https://us.123rf.com/450wm/tomertu/tomertu2010/tomertu201000252/157378249-old-feather-quill-ink-pen-with-inkwell-and-old-books-over-wooden-desk-in-front-of-black-wall-backgro.jpg?ver=6",
+      description: `Aldous Huxley once said <strong><i>“Every man's memory is his private literature.”</i></strong>. Therefore the team at Akshar invites you to make great memories in this <strong><i>"lieu de mémoire"</i></strong> of Akshar 2024.  The enthusiasm and passion you bring, akin to a glorious sunrise, will help radiate our love for literature throughout the country.`,
+    },
   ];
 
   return (
     <Container>
-     
-    
-        <Content>
-          {cards.map((card, i) => (
-            <Card key={i} reversed={i % 2 === 1}>
-              <Image imageSrc={card.imageSrc} />
-              <Details>
-                <Subtitle >{card.subtitle}</Subtitle>
-                <Description dangerouslySetInnerHTML={{ __html: card.description }} />
-                {(i === 2) && <Link to="/events">
-                  <LinkAbout>See Event Details --&gt;</LinkAbout>
-                </Link>}
-              </Details>
-            </Card>
-          ))}
-        </Content>
+      <Content>
+        {cards.map((card, i) => (
+          <Card key={i} reversed={i % 2 === 1}>
+            <Image imageSrc={card.imageSrc} />
+            <Details>
+              <Subtitle>{card.subtitle}</Subtitle>
+              <Description dangerouslySetInnerHTML={{ __html: card.description }} />
+              
+            </Details>
+          </Card>
+        ))}
 
-     
+        {/* Pre-Register Button Added Below */}
+        <PreRegisterButton as={Link} to="/pre-register">
+  Pre-Register for Akshar
+</PreRegisterButton>
+      </Content>
+
       <SvgDotPattern1 />
       <SvgDotPattern2 />
       <SvgDotPattern3 />

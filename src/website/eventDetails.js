@@ -317,7 +317,7 @@ useEffect(() => {
   };
 
   // Handle the upload process
-  const handleScreenshotUpload = async (e) => {
+  const handleScreenshotUpload = async (e, leaderDetails) => { // Use leaderDetails to access phone number
     const file = e.target?.files?.[0]; // Safely access the selected file
     if (!file) {
         toast({
@@ -331,13 +331,25 @@ useEffect(() => {
     }
 
     try {
-        // Use user.uid as the filename to store the image
-        const storageRef = ref(storage, `screenshots/${user.uid}/${user.uid}.jpg`); // Assuming you want to save as a .jpg file
+        const phone = leaderDetails?.phone; // Safely access the phone number from leaderDetails
+        if (!phone) {
+            toast({
+                title: "No phone number.",
+                description: "Phone number is required for file naming.",
+                status: "warning",
+                duration: 3000,
+                isClosable: true,
+            });
+            return;
+        }
+
+        // Use phone number as the filename to store the image
+        const storageRef = ref(storage, `screenshots/${phone}/${phone}.jpg`); // Save the file as phone.jpg
 
         // Upload the file to Firebase Storage
         const snapshot = await uploadBytes(storageRef, file);
 
-        // Get the download URL after upload is complete
+        // Get the download URL after the upload is complete
         const downloadURL = await getDownloadURL(snapshot.ref);
 
         toast({
@@ -351,7 +363,7 @@ useEffect(() => {
         console.log("Screenshot uploaded:", downloadURL);
 
         // Optionally, you can store the download URL in Firestore or state
-        // Example: saveDownloadURLToFirestore(downloadURL);
+        // Example: saveDownloadURLToFirestore(downloadURL, phone);
 
     } catch (error) {
         toast({
@@ -364,6 +376,8 @@ useEffect(() => {
         console.error("Error uploading screenshot:", error);
     }
 };
+
+
 
 
 
@@ -521,26 +535,27 @@ return (
     Logout
 </Button>
 
-                    {formSubmitted ? (
-                        <Box mt={4}>
-                            <Heading as="h3" size="lg" color="blue.500">Application Status</Heading>
-                            <Text>Your MUN ID: {munID}</Text>
+{formSubmitted ? (
+    <Box mt={4}>
+        <Heading as="h3" size="lg" color="blue.500">Application Status</Heading>
+        <Text>Your MUN ID: {munID}</Text>
 
-                            {status === 'true' ? (
-                                <VStack mt={4}>
-                                    <Icon as={CheckCircleIcon} w={10} h={10} color="green" />
-                                    <Text fontSize="lg" color="green.600">Your application is approved!</Text>
-                                </VStack>
-                            ) : (
-                                <VStack mt={4}>
-                                    <Icon as={WarningTwoIcon} w={10} h={10} color="yellow.500" />
-                                    <Text fontSize="lg" color="yellow.600">Your application is pending!.</Text>
-                                </VStack>
-                            )}
+        {/* Check the status and display the relevant icon and message */}
+        {status === true || status === 'true' ? (
+            <VStack mt={4}>
+                <Icon as={CheckCircleIcon} w={10} h={10} color="green" />
+                <Text fontSize="lg" color="green.600">Your application is approved!</Text>
+            </VStack>
+        ) : (
+            <VStack mt={4}>
+                <Icon as={WarningTwoIcon} w={10} h={10} color="yellow.500" />
+                <Text fontSize="lg" color="yellow.600">Your application is pending!</Text>
+            </VStack>
+        )}
 
-                            <Text>For any Query Contact +91 9509615569</Text>
-                        </Box>
-                    ) : (
+        <Text>For any Query Contact +91 9509615569</Text>
+    </Box>
+) : (
                         <Tabs index={activeTabIndex} variant="soft-rounded" isFitted>
                             {/* Disable clicking on tabs */}
       <TabList
@@ -896,11 +911,12 @@ return (
     <FormLabel>Upload Payment Screenshot</FormLabel>
     <Input
         type="file"
-        onChange={(e) => handleScreenshotUpload(e)} // Pass the event properly
+        onChange={(e) => handleScreenshotUpload(e, leaderDetails)} // Pass leaderDetails from state or props
         accept="image/*"
         bg="white"
     />
 </Box>
+
 
 
       </VStack>

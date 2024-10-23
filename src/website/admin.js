@@ -341,7 +341,8 @@ import {
     TabList,
     Tab,
     TabPanels,
-    TabPanel
+    TabPanel,
+    useToast
 } from '@chakra-ui/react';
 
 const Admin = () => {
@@ -384,14 +385,18 @@ const Admin = () => {
                     const docId = doc.id; // Get the document ID
                     let imageURL = null;
     
-                    // Construct the path to the image file in Firebase Storage
-                    const imagePath = `screenshots/${docId}/${docId}.jpg`; // Using docId for the image filename
+                    // Get the phone number from leaderDetails
+                    const phone = data.leaderDetails?.phone;
+                    if (phone) {
+                        // Construct the path to the image file using phone number as the filename
+                        const imagePath = `screenshots/${phone}/${phone}.jpg`; // Using phone for the image filename
     
-                    try {
-                        // Fetch the download URL from Firebase Storage
-                        imageURL = await getDownloadURL(ref(storage, imagePath));
-                    } catch (error) {
-                        console.error(`Error fetching image for ${docId}:`, error);
+                        try {
+                            // Fetch the download URL from Firebase Storage
+                            imageURL = await getDownloadURL(ref(storage, imagePath));
+                        } catch (error) {
+                            console.error(`Error fetching image for ${phone}:`, error);
+                        }
                     }
     
                     return {
@@ -410,6 +415,7 @@ const Admin = () => {
     };
     
     
+    
 
     // Fetch all preregistrations for Akshar
     const fetchPreregistrations = async () => {
@@ -426,21 +432,45 @@ const Admin = () => {
         }
     };
 
+    const toast = useToast(); // Initialize toast
+
     const handleStatusChange = async (id, newStatus) => {
         try {
-            const registrationDocRef = doc(db, 'events', id); // Use the correct collection name
-            await updateDoc(registrationDocRef, {
-                status: newStatus === 'true' // Ensure you're storing the correct boolean value
+            const docRef = doc(db, 'events', id); // Get the document reference from Firestore
+            await updateDoc(docRef, {
+                status: newStatus // Update the status field
             });
-            setRegistrations(prevRegistrations => 
-                prevRegistrations.map(reg => 
-                    reg.id === id ? { ...reg, status: newStatus === 'true' } : reg
+    
+            // Update local state to reflect the new status
+            setRegistrations((prevRegistrations) =>
+                prevRegistrations.map((registration) =>
+                    registration.id === id ? { ...registration, status: newStatus } : registration
                 )
             );
+    
+            // Show success toast notification
+            toast({
+                title: "Status updated",
+                description: `The application has been marked as ${newStatus === 'true' ? 'Approved' : 'Pending'}.`,
+                status: "success",
+                duration: 3000,
+                isClosable: true,
+            });
         } catch (error) {
             console.error("Error updating status:", error);
+    
+            // Show error toast notification
+            toast({
+                title: "Error",
+                description: "Failed to update status.",
+                status: "error",
+                duration: 3000,
+                isClosable: true,
+            });
         }
     };
+    
+    
 
     // CSV export function for MUN registrations
     const exportToCSV = () => {

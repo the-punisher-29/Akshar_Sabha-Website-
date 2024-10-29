@@ -16,7 +16,7 @@ function Home() {
   const DescriptionText = tw.p`text-lg text-teal-700 font-Philosopher`; // 
   // Function to open the PDF in a new tab
   const handleOpenPDF = () => {
-    window.open('/PR_Brochure_Akshar.pdf', '_blank');
+    window.open('/New_PR_Brochure_Akshar.pdf', '_blank');
   };
 
   return (
